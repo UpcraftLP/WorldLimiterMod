@@ -43,6 +43,7 @@ public class WorldBorderEvents {
 	}
 	
 	public static void worldBorder(FMLServerStartedEvent event) {
+		if(border == 0) return;
 		WorldServer[] worlds = FMLCommonHandler.instance().getMinecraftServerInstance().getServer().worldServers;
 		for (WorldServer worldServer : worlds) {
 			if(worldServer.provider.getDimension() == 0) {
@@ -101,32 +102,68 @@ public class WorldBorderEvents {
 		//+X
 		if(entity.posX > border) {
 			BlockPos newPos = new BlockPos(-border + notRange + 5.0D, entity.posY, entity.posZ);
-			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
+			if(!world.isAirBlock(newPos) || !world.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
 			entity.setPositionAndUpdate(newPos.getX(), newPos.getY(), newPos.getZ());
+			if(entity.getPassengers() != null) {
+				for (Entity passenger : entity.getPassengers()) {
+					world.updateEntity(passenger);
+					if(passenger instanceof EntityPlayer) {
+						EntityPlayer player = (EntityPlayer) passenger;
+						player.addChatComponentMessage(new TextComponentString("Please get off your mount to update your position."));
+					}
+				}
+			}
 			return;
 		}
 		
 		//-X
 		if(entity.posX < -border) {
 			BlockPos newPos = new BlockPos(border - notRange - 5.0D, entity.posY, entity.posZ);
-			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
+			if(!world.isAirBlock(newPos) || !world.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
 			entity.setPositionAndUpdate(newPos.getX(), newPos.getY(), newPos.getZ());
+			if(entity.getPassengers() != null) {
+				for (Entity passenger : entity.getPassengers()) {
+					world.updateEntity(passenger);
+					if(passenger instanceof EntityPlayer) {
+						EntityPlayer player = (EntityPlayer) passenger;
+						player.addChatComponentMessage(new TextComponentString("Please get off your mount to update your position."));
+					}
+				}
+			}
 			return;
 		}
 		
 		//+Z
 		if(entity.posZ > border) {
 			BlockPos newPos = new BlockPos(entity.posX, entity.posY, -border + notRange + 5.0D);
-			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
+			if(!world.isAirBlock(newPos) || !world.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
 			entity.setPositionAndUpdate(newPos.getX(), newPos.getY(), newPos.getZ());
+			if(entity.getPassengers() != null) {
+				for (Entity passenger : entity.getPassengers()) {
+					world.updateEntity(passenger);
+					if(passenger instanceof EntityPlayer) {
+						EntityPlayer player = (EntityPlayer) passenger;
+						player.addChatComponentMessage(new TextComponentString("Please get off your mount to update your position."));
+					}
+				}
+			}
 			return;
 		}
 				
 		//-Z
 		if(entity.posZ < -border) {
 			BlockPos newPos = new BlockPos(entity.posZ, entity.posY, border - notRange - 5.0D);
-			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
+			if(!world.isAirBlock(newPos) || !world.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
 			entity.setPositionAndUpdate(newPos.getX(), newPos.getY(), newPos.getZ());
+			if(entity.getPassengers() != null) {
+				for (Entity passenger : entity.getPassengers()) {
+					world.updateEntity(passenger);
+					if(passenger instanceof EntityPlayer) {
+						EntityPlayer player = (EntityPlayer) passenger;
+						player.addChatComponentMessage(new TextComponentString("Please get off your mount to update your position."));
+					}
+				}
+			}
 			return;
 		}
 	}

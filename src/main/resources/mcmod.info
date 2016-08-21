@@ -1,15 +1,13 @@
 [
 {
-  "modid": "examplemod",
-  "name": "Example Mod",
-  "description": "Example placeholder mod.",
+  "modid": "worldlimiter",
+  "name": "World Limiter Mod",
+  "description": "Small mod simulating a round world.",
   "version": "${version}",
   "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["ExampleDude"],
-  "credits": "The Forge and FML guys, for making this example",
-  "logoFile": "",
+  "url": "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2729513",
+  "authorList": ["UpcraftLP"],
+  "credits": "",
   "screenshots": [],
   "dependencies": []
 }

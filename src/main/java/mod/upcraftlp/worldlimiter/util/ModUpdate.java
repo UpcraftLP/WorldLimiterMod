@@ -32,7 +32,7 @@ public class ModUpdate {
 					{
 						String contentString = scanner.nextLine();
 								String[] content = contentString.split("-");
-						SysUtils.println(content[0] + ", " + content[1]);
+						
 						if(content[0].equals(Reference.MCVERSION))
 						{
 							latest = content[1];
