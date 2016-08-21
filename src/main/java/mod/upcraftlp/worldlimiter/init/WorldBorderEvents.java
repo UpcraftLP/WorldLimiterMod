@@ -101,7 +101,7 @@ public class WorldBorderEvents {
 		//+X
 		if(entity.posX > border) {
 			BlockPos newPos = new BlockPos(-border + notRange + 5.0D, entity.posY, entity.posZ);
-			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos);
+			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
 			entity.setPositionAndUpdate(newPos.getX(), newPos.getY(), newPos.getZ());
 			return;
 		}
@@ -109,7 +109,7 @@ public class WorldBorderEvents {
 		//-X
 		if(entity.posX < -border) {
 			BlockPos newPos = new BlockPos(border - notRange - 5.0D, entity.posY, entity.posZ);
-			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos);
+			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
 			entity.setPositionAndUpdate(newPos.getX(), newPos.getY(), newPos.getZ());
 			return;
 		}
@@ -117,7 +117,7 @@ public class WorldBorderEvents {
 		//+Z
 		if(entity.posZ > border) {
 			BlockPos newPos = new BlockPos(entity.posX, entity.posY, -border + notRange + 5.0D);
-			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos);
+			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
 			entity.setPositionAndUpdate(newPos.getX(), newPos.getY(), newPos.getZ());
 			return;
 		}
@@ -125,7 +125,7 @@ public class WorldBorderEvents {
 		//-Z
 		if(entity.posZ < -border) {
 			BlockPos newPos = new BlockPos(entity.posZ, entity.posY, border - notRange - 5.0D);
-			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos);
+			if(!entity.worldObj.isAirBlock(newPos) || !entity.worldObj.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
 			entity.setPositionAndUpdate(newPos.getX(), newPos.getY(), newPos.getZ());
 			return;
 		}
