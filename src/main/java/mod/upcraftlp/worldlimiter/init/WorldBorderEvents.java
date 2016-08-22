@@ -60,7 +60,7 @@ public class WorldBorderEvents {
 	public void notifyPlayers(PlayerTickEvent event) {
 		if(!showNotification || event.side == Side.CLIENT || event.player == null) return;
 		EntityPlayer player = event.player;
-		
+		if(player.worldObj.provider.getDimension() != 0) return;
 		//+X
 		if(player.posX > border - notRange) {
 			notifyPlayer(player);
@@ -97,7 +97,7 @@ public class WorldBorderEvents {
 	public void teleportEntities(LivingUpdateEvent event) {
 		Entity entity = event.getEntity();
 		World world = entity.worldObj;
-		if(world.isRemote) return;
+		if(world.isRemote || world.provider.getDimension() != 0) return;
 		
 		//+X
 		if(entity.posX > border) {
