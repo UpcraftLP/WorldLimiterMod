@@ -152,7 +152,7 @@ public class WorldBorderEvents {
 				
 		//-Z
 		if(entity.posZ < -border) {
-			BlockPos newPos = new BlockPos(entity.posZ, entity.posY, border - notRange - 5.0D);
+			BlockPos newPos = new BlockPos(entity.posX, entity.posY, border - notRange - 5.0D);
 			if(!world.isAirBlock(newPos) || !world.isAirBlock(newPos.up())) newPos = world.getTopSolidOrLiquidBlock(newPos).up();
 			entity.setPositionAndUpdate(newPos.getX(), newPos.getY(), newPos.getZ());
 			if(entity.getPassengers() != null) {
