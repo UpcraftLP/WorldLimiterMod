@@ -1,0 +1,18 @@
+{
+	"homepage": "https://minecraft.curseforge.com/projects/world-limiter-mod",
+	"promos": {
+		"1.11.2-latest": "1.1.0",
+		"1.11.2-recommended": "1.1.0",
+		"1.11-latest": "1.1.0",
+		"1.11-recommended": "1.1.0",
+		"1.10.2-latest": "1.0.2"
+	},
+	"1.11": {
+		"1.1.0": "Initial 1.11/1.11.2 Release\n* world border behaves correctly now (1.11.2 ONLY)\n* non-player entities keep their momentum after teleporting"
+	},
+	"1.10.2": {
+		"1.0.2": "* hotfix for wrong entity position when passing the world border in negative Z direction",
+		"1.0.1": "* created a workaround for teleporting riding entities",
+		"1.0.0": "Initial Release v1.0.0\n* added update-checker* added basic functionality* added configuration file\n* added bugs ;)"
+	}
+}
