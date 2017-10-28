@@ -1,62 +1,40 @@
 package mod.upcraftlp.worldlimiter;
 
-import com.google.common.collect.Lists;
-import com.google.common.primitives.Ints;
-import mod.upcraftlp.worldlimiter.Reference;
-import net.minecraftforge.common.config.ConfigCategory;
-import net.minecraftforge.common.config.ConfigElement;
-import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.config.IConfigElement;
+import net.minecraftforge.common.config.Config;
+import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-@Mod.EventBusSubscriber
+@Config(modid = Reference.MODID, name = "craftdevmods/" + Reference.MODID)
 public class ModConfig {
 
-	public static int radius;
-	public static boolean enableNotification;
-	public static int notificationRange;
-	public static boolean enableWorldBorder;
-	public static List<Integer> dimensions = Lists.newArrayList();
-	public static boolean isDirty = false;
+	@Config.Comment("defines how many blocks a player can travel before being teleported, set to 0 to disable")
+	@Config.RangeInt(min = 0)
+	public static int radius = 10000;
 
-	public static Configuration config;
+	@Config.Comment("enable disable notification of players when close to the world border")
+	public static boolean enableNotification = true;
 
-	public static void init(FMLPreInitializationEvent event) {
-		config = new Configuration(new File(event.getModConfigurationDirectory(), "craftdevmods/" + Reference.MODID + ".cfg"));
-		config.load();
-		syncConfig();
+	@Config.Comment("defines at which distance to the world border a player is notified")
+	@Config.RangeInt(min = 0, max = 32)
+	public static int notificationRange = 10;
+
+	@Config.Comment("if enabled, change the size of the world border to match the teleportation radius")
+	public static boolean enableWorldBorder = true;
+
+	@Config.Comment("comma-separated list of dimension IDs that are affected by the mod")
+	public static int[] affectedDimensions = new int[]{0};
+
+    @Mod.EventBusSubscriber
+    public static class Handler {
+
+    	@SubscribeEvent
+		public static void configChanged(ConfigChangedEvent event) {
+			if(event.getModID().equals(Reference.MODID)) {
+				ConfigManager.sync(Reference.MODID, Config.Type.INSTANCE);
+			}
+		}
 	}
-
-	public static void syncConfig() {
-        /** Configuration Start **/
-
-        radius = config.getInt("radius", Configuration.CATEGORY_GENERAL, 10000, 0, Integer.MAX_VALUE, "defines how many blocks a player can travel before being teleported, set to 0 to disable");
-        enableNotification = config.getBoolean("enableNotification", Configuration.CATEGORY_GENERAL, true, "enable disable notification of players when close to the world border");
-        notificationRange = config.getInt("notificationRange", Configuration.CATEGORY_GENERAL, 10, 1, 32, "defines at which distance to the world border a player is notified");
-        dimensions = Ints.asList(config.get(Configuration.CATEGORY_GENERAL, "affectedDimensions", new int[]{0}, "comma-separated list of dimension IDs that are affected by the mod").getIntList());
-        enableWorldBorder = config.getBoolean("enableWorldBorder", Configuration.CATEGORY_GENERAL, true, "if enabled, change the size of the world border to match the teleportation radius");
-
-        /** Configuration End **/
-        if(config.hasChanged()) {
-            config.save();
-            isDirty = true;
-        }
-    }
-
-    @SubscribeEvent
-    public static void configChanged(ConfigChangedEvent event) {
-	    if(event.getModID().equals(Reference.MODID)) {
-	        syncConfig();
-        }
-    }
 
 }
