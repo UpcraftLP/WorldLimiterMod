@@ -11,7 +11,6 @@ import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraft.world.border.WorldBorder;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingUpdateEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -100,7 +99,7 @@ public class WorldBorderEvents {
 	public static void teleportEntities(LivingUpdateEvent event) {
 		Entity entity = event.getEntity();
 		World world = entity.getEntityWorld();
-		if(world.isRemote) return;
+		if(world.isRemote ||entity.isDead) return;
         for (int id : ModConfig.affectedDimensions) {
             if (id == entity.dimension) {
                 int border = ModConfig.radius;
@@ -117,7 +116,6 @@ public class WorldBorderEvents {
                 }
                 if (newPos != null) {
                     while (!world.isAirBlock(newPos) || !world.isAirBlock(newPos.up())) newPos = newPos.up();
-
                     double mX = entity.motionX;
                     double mY = entity.motionY;
                     double mZ = entity.motionZ;
@@ -125,17 +123,13 @@ public class WorldBorderEvents {
                     entity.motionX = mX;
                     entity.motionY = mY;
                     entity.motionZ = mZ;
-                    if (entity instanceof EntityPlayerMP && !entity.isDead) {
+                    if (entity instanceof EntityPlayerMP) {
                         EntityPlayerMP player = (EntityPlayerMP) entity;
-                        player.connection.setPlayerLocation(newPos.getX(), newPos.getY(), newPos.getZ(), player.rotationYaw, player.rotationPitch);
-                        player.connection.sendPacket(new SPacketEntityVelocity(player));
+                        teleportPlayer(player, world, newPos.getX(), newPos.getY(), newPos.getZ());
                     }
                     for (Entity passenger : entity.getPassengers()) {
                         if (passenger instanceof EntityPlayerMP && !passenger.isDead) {
-                            EntityPlayerMP player = (EntityPlayerMP) passenger;
-                            player.setPositionAndUpdate(entity.posX, entity.posY, entity.posZ);
-                            player.connection.setPlayerLocation(entity.posX, entity.posY, entity.posZ, player.rotationYaw, player.rotationPitch);
-                            player.connection.sendPacket(new SPacketEntityVelocity(player));
+                            teleportPlayer((EntityPlayerMP) passenger, world, passenger.posX, passenger.posY, passenger.posZ);
                         }
                         world.updateEntity(passenger);
                     }
@@ -144,4 +138,14 @@ public class WorldBorderEvents {
             }
         }
 	}
+
+	private static void teleportPlayer(EntityPlayerMP player, World world, double x, double y, double z) {
+        if(player.isRiding()) {
+            Entity mount = player.getRidingEntity();
+            mount.setPositionAndUpdate(x, y, z);
+            world.updateEntityWithOptionalForce(mount, true);
+        }
+        player.setPositionAndUpdate(x, y, z);
+        player.connection.sendPacket(new SPacketEntityVelocity(player));
+    }
 }
