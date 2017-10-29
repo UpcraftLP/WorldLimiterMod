@@ -154,7 +154,11 @@ curseforge {
             changelog = getChangelogText()
             releaseType = project.release_type
 
-            relations curseRelations
+            //relations curseRelations
+
+            addGameVersion '1.12.2'
+            addGameVersion '1.12.1'
+            addGameVersion '1.12'
 
             addGameVersion '1.11.2'
             addGameVersion '1.11.1'
