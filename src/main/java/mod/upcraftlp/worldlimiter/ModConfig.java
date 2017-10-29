@@ -9,6 +9,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Config(modid = Reference.MODID, name = "craftdevmods/" + Reference.MODID)
 public class ModConfig {
 
+	@Config.Comment("en/disable update notifications on world join")
+	public static boolean announceUpdates = true;
+
+	@Config.Comment("also announce beta updates when available")
+	public static boolean announceBetaUpdates = false;
+
 	@Config.Comment("defines how many blocks a player can travel before being teleported, set to 0 to disable")
 	@Config.RangeInt(min = 0)
 	public static int radius = 10000;
