@@ -1,12 +1,24 @@
 buildscript {
     repositories {
         jcenter()
-        maven { url = "http://files.minecraftforge.net/maven" }
+        maven {
+            name = "Forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = "Sonatype"
+            url = 'https://oss.sonatype.org/content/groups/public'
+        }
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
+
+plugins {
+    id 'com.matthewprenger.cursegradle' version '1.0.9'
+}
+
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the nessasary things for Forge to be setup.
 
@@ -20,6 +32,7 @@ else if(project.hasProperty('dev_username')) {
 
 version = "${project.mc_version}-${project.mod_version}"
 group= project.base_package // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+//noinspection GroovyUnusedAssignment
 archivesBaseName = project.mod_name
 
 sourceCompatibility = targetCompatibility = project.jvm_version // Need this here so eclipse task generates correctly.
@@ -35,75 +48,179 @@ repositories {
     maven {
         // location of a maven mirror for JEI files, as a fallback
         name = "ModMaven"
-        url = "modmaven.k-4u.nl"
+        url = "http://modmaven.k-4u.nl"
+    }
+
+    maven {
+        //fallback for almost everything, this is CurseForge :P
+        name = "CurseForge"
+        url = "https://minecraft.curseforge.com/api/maven/"
     }
 }
 
 minecraft {
     version = "${project.mc_version}-${project.forge_version}"
     if(file('../run').exists()) {
-		runDir = "../run"
-	}
-	else
-	{
-		runDir = "run"
-	}
-    
+        runDir = "../run"
+    }
+    else
+    {
+        runDir = "run"
+    }
+
     mappings = project.forge_mappings
     makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-	
-	replace "@VERSION@", project.mod_version
-    replaceIn "Reference.java"
+
+    replace "@VERSION@", project.mod_version
+    if(project.hasProperty('public_key')) {
+        replace "@FINGERPRINTKEY@", "${project.public_key}".replace(":", "").toLowerCase(Locale.ROOT)
+    }
+    replaceIn "mod/upcraftlp/worldlimiter/Reference.java"
 
     //auto-configure the run arguments
     clientRunArgs += "--username=${username}"
     if(project.hasProperty('dev_password')) {
-        clientRunArgs += " --password=${dev_password}"
+        clientRunArgs += "--password=${dev_password}"
     }
-    serverRunArgs += "nogui"
-    serverRunArgs += "-Dfml.queryResult=confirm"
+    serverRunArgs += "nogui" //mc server GUIs suck :P
+
+    //add the coremod to the dev environment
+    //clientJvmArgs += "-Dfml.coreMods.load="
+    //serverJvmArgs += "-Dfml.coreMods.load="
+    serverJvmArgs += "-Dfml.queryResult=confirm"
+}
+
+sourceSets {
+
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+        resources {
+            srcDir 'resources'
+        }
+    }
+}
+
+jar {
+    manifest.mainAttributes(
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${project.mod_version}",
+            "Built-On": "${project.mc_version}-${project.forge_version}" //,
+            //"FMLAT": "${project.mod_name}_at.cfg" //uncomment when adding Forge AT
+    )
+}
+
+task signJar(type: SignJar, dependsOn: reobfJar) {
+    if(project.hasProperty('sign_keyStore')) {
+        keyPass = "${sign_keyPass}"
+        keyStore = "${sign_keyStore}"
+        storePass = "${sign_storePass}"
+        alias = "${sign_alias}"
+    }
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+}
+
+if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+        tasks.withType(Javadoc) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+    }
 }
 
 dependencies {
-
-	//everything in /libs/*
-    //currently:
-    //    * craftdev-core
-	compile fileTree(dir: '${project.lib_location}', include: '*.jar', exclude: '*-sources.jar')
 
     // at runtime, use the full JEI jar
     runtime "mezz.jei:jei_${project.mc_version}:${project.jei_version}"
 
 }
+tasks.build.dependsOn signJar
+tasks.curseforge.dependsOn build
 
-sourceSets {
-	
-	main {
-		java {
-			srcDir 'src/main/java'
-		}
-		resources {
-			srcDir 'resources'
-		}
-	}
+def curseRelations = {
+    //requiredLibrary ''
+    //optionalLibrary '' //add curseforge-slug here
+}
+
+curseforge {
+    if (project.hasProperty('curse_key') && project.hasProperty('curse_id')) {
+        apiKey = project.curse_key
+
+        project {
+            id = project.curse_id
+            changelogType = 'markdown'
+            changelog = getChangelogText()
+            releaseType = project.release_type
+
+            relations curseRelations
+
+            addGameVersion '1.11.2'
+            addGameVersion '1.11.1'
+            addGameVersion '1.11'
+
+            //no such jars for now
+            //addArtifact javadocJar
+            //addArtifact sourceJar
+            //addArtifact apiJar
+
+            mainArtifact(jar) {
+                displayName = "World Limiter Mod v${project.mod_version} MC${project.mc_version}"
+            }
+        }
+    }
 }
 
 processResources
-{
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+        {
+            // this will ensure that this task is redone when the versions change.
+            inputs.property "version", version
+            inputs.property "mcversion", project.minecraft.version
 
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-                
-        // replace version and mcversion
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+            // replace stuff in mcmod.info, nothing else
+            from(sourceSets.main.resources.srcDirs) {
+                include 'mcmod.info'
+
+                // replace version and mcversion
+                expand 'version':version, 'mcversion':project.minecraft.version
+            }
+
+            // copy everything else, thats not the mcmod.info
+            from(sourceSets.main.resources.srcDirs) {
+                exclude 'mcmod.info'
+            }
+
+            //ATs
+            rename '(.+_at.cfg)', 'META-INF/$1'
+        }
+
+String getChangelogText() {
+    def changelogFile = new File(project.projectDir, "changelog.md")
+    String str = ''
+    if(!changelogFile.exists()) {
+        changelogFile.createNewFile()
+        return str
     }
-        
-    // copy everything else, thats not the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+    String separator = '---'
+    int lineCount = 0
+    boolean done = false
+    changelogFile.eachLine {
+        if (done || it == null) {
+            return
+        }
+        if (lineCount < 3) {
+            lineCount++
+            if (it.startsWith(separator)) {
+                return
+            }
+        }
+        if (!it.startsWith(separator)) {
+            str += "$it" + (lineCount < 3 ? ':\n\n' : '\n')
+            return
+        }
+        done = true // once we go past the first version block, parse no more
     }
+    str += "\n\nsee full changelog [here](${project.changelog_url} \"Changelog\")"
+    return str
 }
