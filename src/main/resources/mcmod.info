@@ -1,0 +1,14 @@
+[
+{
+  "modid": "worldlimiter",
+  "name": "World Limiter Mod",
+  "description": "Small mod simulating a round world.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://minecraft.curseforge.com/projects/world-limiter-mod",
+  "authorList": ["UpcraftLP"],
+  "credits": "(c)2017 UpcraftLP",
+  "screenshots": [],
+  "dependencies": []
+}
+]

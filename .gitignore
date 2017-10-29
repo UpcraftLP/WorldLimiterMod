@@ -21,11 +21,5 @@ build
 eclipse
 run
 build
-_build.bat
-_update.bat
-gradlew
-gradlew.bat
 
-
-
-classes/
+/classes/
